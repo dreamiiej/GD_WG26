@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8proj0000001"]
+
+[ext_resource type="Script" uid="uid://bjsspfuee1nvj" path="res://src/weapon/projectile.gd" id="1_proj"]
+
+[sub_resource type="CircleShape2D" id="CircleProj"]
+radius = 6.0
+
+[sub_resource type="RectangleShape2D" id="RectProj"]
+
+[node name="Projectile" type="Area2D"]
+collision_layer = 3
+collision_mask = 2
+script = ExtResource("1_proj")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(8, 0, -6, 5, -6, -5)
+color = Color(1, 0.85, 0.2, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleProj")

@@ -1,0 +1,87 @@
+[gd_resource type="WaveTable" script_class="WaveTable" format=3 uid="uid://b8wavecfg0001"]
+
+[ext_resource type="Script" uid="uid://dapaq3sor4eg4" path="res://src/data/wave_table.gd" id="1_wt"]
+[ext_resource type="Script" uid="uid://cuucpc2t2rwr2" path="res://src/data/wave_config.gd" id="2_wc"]
+[ext_resource type="PackedScene" uid="uid://b8enemy000001" path="res://src/enemy/enemy.tscn" id="3_enemy"]
+[ext_resource type="Resource" uid="uid://b8enemybase001" path="res://src/data/enemy_base.tres" id="4_grunt"]
+[ext_resource type="Resource" uid="uid://bopll0ry7e441" path="res://src/data/enemy_fast.tres" id="5_fast"]
+[ext_resource type="Resource" uid="uid://bopll0oe7d441" path="res://src/data/enemy_boss.tres" id="6_boss"]
+
+[sub_resource type="WaveConfig" id="w0"]
+script = ExtResource("2_wc")
+display_name = "Wave 1"
+enemy_scene = ExtResource("3_enemy")
+enemy_data = ExtResource("4_grunt")
+extra_enemy_scene = null
+extra_enemy_data = null
+extra_chance = 0.0
+spawn_interval = 1.2
+health_mult = 1.0
+speed_mult = 1.0
+damage_mult = 1.0
+exp_mult = 1.0
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="WaveConfig" id="w1"]
+script = ExtResource("2_wc")
+display_name = "Wave 2"
+enemy_scene = ExtResource("3_enemy")
+enemy_data = ExtResource("4_grunt")
+extra_enemy_scene = ExtResource("3_enemy")
+extra_enemy_data = ExtResource("5_fast")
+extra_chance = 0.15
+spawn_interval = 1.0
+health_mult = 1.25
+speed_mult = 1.05
+damage_mult = 1.1
+exp_mult = 1.1
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="WaveConfig" id="w2"]
+script = ExtResource("2_wc")
+display_name = "Wave 3"
+enemy_scene = ExtResource("3_enemy")
+enemy_data = ExtResource("5_fast")
+extra_enemy_scene = ExtResource("3_enemy")
+extra_enemy_data = ExtResource("4_grunt")
+extra_chance = 0.35
+spawn_interval = 0.85
+health_mult = 1.5
+speed_mult = 1.1
+damage_mult = 1.2
+exp_mult = 1.2
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="WaveConfig" id="w3"]
+script = ExtResource("2_wc")
+display_name = "Wave 4"
+enemy_scene = ExtResource("3_enemy")
+enemy_data = ExtResource("5_fast")
+extra_enemy_scene = ExtResource("3_enemy")
+extra_enemy_data = ExtResource("6_boss")
+extra_chance = 0.12
+spawn_interval = 0.7
+health_mult = 1.9
+speed_mult = 1.15
+damage_mult = 1.35
+exp_mult = 1.35
+tint = Color(1, 1, 1, 1)
+
+[sub_resource type="WaveConfig" id="w4"]
+script = ExtResource("2_wc")
+display_name = "Wave 5+"
+enemy_scene = ExtResource("3_enemy")
+enemy_data = ExtResource("5_fast")
+extra_enemy_scene = ExtResource("3_enemy")
+extra_enemy_data = ExtResource("6_boss")
+extra_chance = 0.18
+spawn_interval = 0.55
+health_mult = 2.5
+speed_mult = 1.2
+damage_mult = 1.5
+exp_mult = 1.5
+tint = Color(1, 1, 1, 1)
+
+[resource]
+script = ExtResource("1_wt")
+waves = Array[WaveConfig]([SubResource("w0"), SubResource("w1"), SubResource("w2"), SubResource("w3"), SubResource("w4")])

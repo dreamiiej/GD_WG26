@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8player00001"]
+
+[ext_resource type="Script" uid="uid://cxn4xlk55lv7y" path="res://src/player/player.gd" id="1_player"]
+
+[sub_resource type="RectangleShape2D" id="RectShapePlayer"]
+size = Vector2(24, 24)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 1
+collision_mask = 2
+script = ExtResource("1_player")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -16, 14, 12, -14, 12)
+color = Color(0.3, 0.7, 0.95, 1)
+
+[node name="HurtArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtArea"]
+shape = SubResource("RectShapePlayer")

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- 敌人-强（Boss）：深蓝精英，红描边，扁平矢量，俯视，透明背景，中心原点 -->
+  <g transform="translate(128,128)">
+    <!-- 外红描边 -->
+    <circle cx="0" cy="0" r="92" fill="#E74C3C"/>
+    <!-- 深蓝身体 -->
+    <circle cx="0" cy="0" r="82" fill="#2C3E50"/>
+    <!-- 装甲板 -->
+    <path d="M-82,0 A82,82 0 0,1 82,0 L60,0 A60,60 0 0,0 -60,0 Z" fill="#34495E"/>
+    <!-- 肩部尖刺 -->
+    <path d="M-82,-20 L-110,-50 L-60,-40 Z" fill="#E74C3C"/>
+    <path d="M82,-20 L110,-50 L60,-40 Z" fill="#E74C3C"/>
+    <!-- 双眼（红，威胁感） -->
+    <path d="M-46,-18 L-14,-6 L-14,6 L-46,18 Z" fill="#E74C3C"/>
+    <path d="M46,-18 L14,-6 L14,6 L46,18 Z" fill="#E74C3C"/>
+    <!-- 中央核心 -->
+    <circle cx="0" cy="34" r="20" fill="#E74C3C"/>
+    <circle cx="0" cy="34" r="10" fill="#FFB347"/>
+  </g>
+</svg>

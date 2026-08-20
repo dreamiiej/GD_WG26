@@ -1,0 +1,15 @@
+[gd_resource type="WeaponData" script_class="WeaponData" load_steps=3 format=3 uid="uid://b8weapdef0001"]
+
+[ext_resource type="Script" uid="uid://dn2lrvyu28drw" path="res://src/data/weapon_data.gd" id="1_wd"]
+[ext_resource type="PackedScene" uid="uid://b8proj0000001" path="res://src/weapon/projectile.tscn" id="2_proj"]
+
+[resource]
+script = ExtResource("1_wd")
+display_name = "飞弹"
+damage = 10.0
+cooldown = 0.6
+projectile_scene = ExtResource("2_proj")
+projectile_speed = 360.0
+pierce = 0
+projectile_count = 1
+spread_deg = 0.0

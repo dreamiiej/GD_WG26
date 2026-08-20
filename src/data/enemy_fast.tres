@@ -1,0 +1,13 @@
+[gd_resource type="EnemyData" script_class="EnemyData" load_steps=2 format=3 uid="uid://bopll0ry7e441"]
+
+[ext_resource type="Script" uid="uid://csr7r8ulq8svw" path="res://src/data/enemy_data.gd" id="1_ed"]
+
+[resource]
+script = ExtResource("1_ed")
+display_name = "Wraith"
+max_health = 12.0
+move_speed = 140.0
+contact_damage = 6.0
+exp_value = 2
+size = 12.0
+color = Color(0.55, 0.27, 0.68, 1)

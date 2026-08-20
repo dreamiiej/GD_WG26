@@ -1,0 +1,28 @@
+# Godot 4+ specific ignores
+.godot/
+/android/
+
+# Imported translations
+*.translation
+
+# Mono-specific
+.mono/
+data_*/
+mono_crash.*.json
+
+# System/tool-specific files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.codebuddy/
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+
+# Python venv
+.venv/
+venv/

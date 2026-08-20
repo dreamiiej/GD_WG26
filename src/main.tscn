@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://bwcpm2eqfk441"]
+
+[ext_resource type="Script" uid="uid://3sxwttmv8i12" path="res://src/main.gd" id="1_main"]
+[ext_resource type="PackedScene" uid="uid://b8player00001" path="res://src/player/player.tscn" id="2_player"]
+[ext_resource type="Script" uid="uid://chpngh23bh0mg" path="res://src/game_manager.gd" id="4_gm"]
+[ext_resource type="PackedScene" uid="uid://b8hud00000001" path="res://src/ui/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" uid="uid://b8gameover0001" path="res://src/ui/game_over_panel.tscn" id="6_go"]
+[ext_resource type="Script" uid="uid://bqi74dwgkbom" path="res://src/weapon/weapon_manager.gd" id="7_wm"]
+[ext_resource type="Resource" uid="uid://b8weapdef0001" path="res://src/data/weapon_default.tres" id="8_wd"]
+[ext_resource type="PackedScene" uid="uid://b8expgem00001" path="res://src/pickup/exp_gem.tscn" id="9_gem"]
+[ext_resource type="PackedScene" uid="uid://b8dmg0000001" path="res://src/ui/damage_number.tscn" id="14_dn"]
+[ext_resource type="PackedScene" uid="uid://b8levelup0001" path="res://src/ui/level_up_panel.tscn" id="10_lvl"]
+[ext_resource type="Script" uid="uid://dmj6mga786dp7" path="res://src/wave_manager.gd" id="11_wave"]
+[ext_resource type="Resource" uid="uid://b8enemybase001" path="res://src/data/enemy_base.tres" id="12_base"]
+[ext_resource type="Resource" uid="uid://b8wavecfg0001" path="res://src/data/wave_configs.tres" id="13_table"]
+[ext_resource type="Script" path="res://src/camera_shake.gd" id="15_cam"]
+[ext_resource type="Script" path="res://src/sfx_manager.gd" id="16_sfx"]
+
+
+
+[sub_resource type="RectangleShape2D" id="WorldRect"]
+size = Vector2(2000, 2000)
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="Player" parent="World" instance=ExtResource("2_player")]
+position = Vector2(960, 540)
+
+[node name="Enemies" type="Node2D" parent="World"]
+
+[node name="Pickups" type="Node2D" parent="World"]
+
+[node name="Projectiles" type="Node2D" parent="World"]
+
+[node name="WeaponManager" type="Node" parent="World"]
+script = ExtResource("7_wm")
+projectile_container = NodePath("../Projectiles")
+default_weapon = ExtResource("8_wd")
+
+[node name="WaveManager" type="Node" parent="World"]
+script = ExtResource("11_wave")
+base_enemy_data = ExtResource("12_base")
+wave_table = ExtResource("13_table")
+wave_duration = 30.0
+
+[node name="Camera2D" type="Camera2D" parent="World"]
+position = Vector2(960, 540)
+script = ExtResource("15_cam")
+
+[node name="GameManager" type="Node" parent="."]
+script = ExtResource("4_gm")
+gem_scene = ExtResource("9_gem")
+damage_number_scene = ExtResource("14_dn")
+max_enemies = 300
+spawn_margin = 60.0
+
+[node name="UI" type="Node2D" parent="."]
+
+[node name="HUD" parent="UI" instance=ExtResource("5_hud")]
+
+[node name="GameOverPanel" parent="UI" instance=ExtResource("6_go")]
+
+[node name="LevelUpPanel" parent="UI" instance=ExtResource("10_lvl")]
+
+[node name="SfxManager" type="Node" parent="."]
+script = ExtResource("16_sfx")

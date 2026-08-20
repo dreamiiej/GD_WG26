@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8hud00000001"]
+
+[ext_resource type="Script" uid="uid://2eslvgul8mf7" path="res://src/ui/hud.gd" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="HealthLabel" type="Label" parent="."]
+offset_right = 200.0
+offset_bottom = 30.0
+text = "HP: 100/100"
+
+[node name="ExpLabel" type="Label" parent="."]
+offset_top = 34.0
+offset_right = 200.0
+offset_bottom = 64.0
+text = "EXP: 0/5"
+
+[node name="LevelLabel" type="Label" parent="."]
+offset_top = 68.0
+offset_right = 200.0
+offset_bottom = 98.0
+text = "Lv: 1"
+
+[node name="WaveLabel" type="Label" parent="."]
+offset_top = 102.0
+offset_right = 200.0
+offset_bottom = 132.0
+text = "Wave: 1"
+
+[node name="TimeLabel" type="Label" parent="."]
+offset_top = 136.0
+offset_right = 200.0
+offset_bottom = 166.0
+text = "时间: 0"

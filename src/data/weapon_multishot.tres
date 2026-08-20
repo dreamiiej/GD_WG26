@@ -1,0 +1,19 @@
+[gd_resource type="WeaponData" script_class="WeaponData" load_steps=3 format=3 uid="uid://b7ghon8b72441"]
+
+[ext_resource type="Script" uid="uid://dn2lrvyu28drw" path="res://src/data/weapon_data.gd" id="1_wd"]
+[ext_resource type="PackedScene" uid="uid://b8proj0000001" path="res://src/weapon/projectile.tscn" id="2_proj"]
+
+[resource]
+script = ExtResource("1_wd")
+weapon_id = "multishot"
+display_name = "多重飞弹"
+weapon_type = 0
+damage = 8.0
+cooldown = 0.7
+projectile_scene = ExtResource("2_proj")
+projectile_speed = 340.0
+pierce = 0
+projectile_count = 3
+spread_deg = 30.0
+radius = 80.0
+duration = 0.25
