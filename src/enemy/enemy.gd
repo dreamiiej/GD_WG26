@@ -4,6 +4,7 @@ extends CharacterBody2D
 ## 暴露 get_contact_damage 供玩家读取；死亡由 GameManager 调用 die()。
 
 signal enemy_died(enemy: Node)
+signal health_changed(current: float, max: float)
 
 const HEALTH_BAR_SCENE := preload("res://src/ui/health_bar.gd")
 
@@ -12,6 +13,16 @@ const HEALTH_BAR_SCENE := preload("res://src/ui/health_bar.gd")
 var _sprite: Sprite2D
 var _player_ref: Node2D                           ## M6 缓存玩家引用，避免每帧全树查找
 var _health_bar: Node2D
+
+## 是否为需要顶部血条的精英/BOSS（数据驱动）
+func is_highlighted() -> bool:
+	return data != null and (data.is_elite or data.is_boss)
+
+
+func get_display_name() -> String:
+	if data != null and data.display_name != "":
+		return data.display_name
+	return "Enemy"
 
 
 func _ready() -> void:
@@ -82,6 +93,7 @@ func take_damage(amount: float) -> void:
 func _update_health_bar() -> void:
 	if _health_bar != null and _health_bar.has_method("set_value"):
 		_health_bar.set_value(data.current_health, data.max_health)
+	health_changed.emit(data.current_health, data.max_health)
 
 
 func die() -> void:

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://csr7r8ulq8svw" path="res://src/data/enemy_data.gd" id="1_ed"]
+[ext_resource type="Texture2D" uid="uid://b7i7m4uxgxggg" path="res://assets/characters/enemy_boss.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_ed")
+display_name = "关底BOSS"
+max_health = 400.0
+move_speed = 45.0
+contact_damage = 30.0
+exp_value = 120
+size = 40.0
+color = Color(0.5, 0.0, 0.8, 1)
+sprite_texture = ExtResource("2_tex")
+is_elite = false
+is_boss = true

@@ -15,6 +15,9 @@
 [ext_resource type="Resource" uid="uid://b8wavecfg0001" path="res://src/data/wave_configs.tres" id="13_table"]
 [ext_resource type="Script" path="res://src/camera_shake.gd" id="15_cam"]
 [ext_resource type="Script" path="res://src/sfx_manager.gd" id="16_sfx"]
+[ext_resource type="PackedScene" uid="uid://b8enemy000001" path="res://src/enemy/enemy.tscn" id="17_esc"]
+[ext_resource type="Resource" path="res://src/data/enemy_elite.tres" id="18_elite"]
+[ext_resource type="Resource" path="res://src/data/enemy_final_boss.tres" id="19_fboss"]
 
 
 
@@ -45,6 +48,12 @@ script = ExtResource("11_wave")
 base_enemy_data = ExtResource("12_base")
 wave_table = ExtResource("13_table")
 wave_duration = 30.0
+elite_enemy_scene = ExtResource("17_esc")
+elite_enemy_data = ExtResource("18_elite")
+boss_enemy_scene = ExtResource("17_esc")
+boss_enemy_data = ExtResource("19_fboss")
+elite_interval = 180.0
+boss_time = 720.0
 
 [node name="Camera2D" type="Camera2D" parent="World"]
 position = Vector2(960, 540)

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyData" load_steps=3 format=3]
+
+[ext_resource type="Script" uid="uid://csr7r8ulq8svw" path="res://src/data/enemy_data.gd" id="1_ed"]
+[ext_resource type="Texture2D" uid="uid://dmaqoy3lkunug" path="res://assets/characters/enemy_weak.png" id="2_tex"]
+
+[resource]
+script = ExtResource("1_ed")
+display_name = "精英"
+max_health = 200.0
+move_speed = 90.0
+contact_damage = 16.0
+exp_value = 30
+size = 28.0
+color = Color(1.0, 0.55, 0.1, 1)
+sprite_texture = ExtResource("2_tex")
+is_elite = true
+is_boss = false

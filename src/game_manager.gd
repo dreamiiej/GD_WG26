@@ -4,6 +4,7 @@ extends Node
 ## 刷怪生成计划交由 WaveManager（文档 3.4），本类只监听 enemy_spawned。
 
 signal game_over
+signal victory
 
 @export var gem_scene: PackedScene
 @export var max_enemies: int = 300
@@ -53,6 +54,10 @@ func _on_enemy_spawned(enemy: Node) -> void:
 
 
 func _on_enemy_died(enemy: Node) -> void:
+	# v2 M7：关底 BOSS 死亡 → 当前关卡胜利
+	if enemy != null and enemy.data != null and enemy.data.is_boss:
+		on_boss_defeated()
+		return
 	# M3：敌人死亡掉落经验宝石（文档 3.5）
 	if gem_scene == null or _pickups_node == null:
 		return
@@ -109,3 +114,17 @@ func on_player_died() -> void:
 	# 死亡后暂停世界（敌人/子弹/计时器冻结），重开时由 main._start_run 解除。
 	get_tree().paused = true
 	game_over.emit()
+
+
+## v2 M7：击败关底 BOSS → 结束当前关卡（胜利结算）
+func on_boss_defeated() -> void:
+	_running = false
+	if _wave_manager != null:
+		_wave_manager.stop()
+	# 清理剩余敌人
+	if _enemies_node != null:
+		for e in _enemies_node.get_children():
+			e.queue_free()
+	_recycle_all_gems()
+	get_tree().paused = true
+	victory.emit()

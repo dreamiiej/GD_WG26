@@ -9,5 +9,7 @@ class_name EnemyData extends Resource
 @export var size: float = 16.0
 @export var color: Color = Color(0.8, 0.2, 0.2, 1.0)
 @export var sprite_texture: Texture2D     ## 外观贴图（美术素材）
+@export var is_elite: bool = false        ## 精英标记：HUD 显示顶部血条
+@export var is_boss: bool = false         ## 关底 BOSS 标记：HUD 显示顶部血条，死亡后胜利
 
 var current_health: float = 0.0           ## 当前血量，_ready 时初始化为 max_health

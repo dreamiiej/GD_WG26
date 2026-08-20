@@ -22,6 +22,7 @@ func _ready() -> void:
 	_player.player_died.connect(_on_player_died)
 	_player.request_level_up.connect(_on_request_level_up)
 	_game_manager.game_over.connect(_game_over.show_panel)
+	_game_manager.victory.connect(_game_over.show_victory)
 	_game_over.restart_requested.connect(_restart)
 	_level_up.upgrade_chosen.connect(_on_upgrade_chosen)
 	# 升级池（文档 3.5，数据驱动）
@@ -29,6 +30,9 @@ func _ready() -> void:
 	# 波次系统（文档 3.4）：GameManager 监听 WaveManager 生成
 	_game_manager.attach_wave_manager(_wave_manager)
 	_wave_manager.wave_changed.connect(_hud.update_wave)
+	# v2 M7：精英/BOSS 刷出 → 顶部血条
+	_wave_manager.elite_spawned.connect(_hud.track_elite)
+	_wave_manager.boss_spawned.connect(_hud.track_elite)
 	_start_run()
 
 

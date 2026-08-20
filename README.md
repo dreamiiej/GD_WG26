@@ -24,6 +24,13 @@
 1. 用 Godot 4.7 打开本目录（project.godot 已自动识别）。
 2. F5 运行（主场景 = res://src/main.tscn）。
 
+## 已实现 (M7 关卡化：精英/BOSS/胜利)
+- 精英敌人：每 3 分钟刷出一只（3/6/9 分钟），血量 = 普通怪 10 倍（Grunt 20 → 200），数据在 `src/data/enemy_elite.tres`。
+- 关底 BOSS：第 12 分钟刷出，血量 = 普通怪 20 倍（Grunt 20 → 400），数据在 `src/data/enemy_final_boss.tres`。
+- 顶部血条：精英/BOSS 存活期间，屏幕靠上位置显示其名字与长条血量（无论敌人位置），随 `health_changed` 实时更新，死亡后隐藏。
+- 胜利结算：击败关底 BOSS 后结束当前关卡，弹出"关卡胜利"结算面板，可重开。
+- 时间触发用 `RunClock`（PROCESS_MODE_ALWAYS），升级暂停不会冻结精英/BOSS 刷出与计时。
+
 ## 目录结构（M5 新增/变更）
 ```
 src/
