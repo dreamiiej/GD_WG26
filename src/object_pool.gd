@@ -2,6 +2,10 @@ class_name ObjectPool extends Node
 ## 通用对象池（文档 4 / M6）。减少频繁 instantiate/free 的开销。
 ## 按 PackedScene 分类维护空闲节点栈；obtain 取出并挂回父节点，release 收回隐藏。
 ## 调用方需在 obtain 与 release 时传入同一个 scene 作为分类 key。
+## 注意：本池节点操作是同步的（obtain 立即挂载，保证子弹等可立即移动）。
+## 调用方若在物理回调（body_entered / area_entered）中触发本池操作，
+## 请先用 call_deferred() 延迟处理，避免引擎报
+## "Removing ... during a physics callback" / "Can't change this state while flushing queries"。
 
 var _free: Dictionary = {}          ## PackedScene -> Array[Node]
 var _root: Node                      ## 空闲节点暂存容器

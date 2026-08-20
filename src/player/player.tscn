@@ -1,18 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://b8player00001"]
+[gd_scene load_steps=4 format=3 uid="uid://b8player00001"]
 
 [ext_resource type="Script" uid="uid://cxn4xlk55lv7y" path="res://src/player/player.gd" id="1_player"]
+[ext_resource type="Texture2D" uid="uid://d4fw8gcf0gpp4" path="res://assets/characters/player.png" id="2_player_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectShapePlayer"]
-size = Vector2(24, 24)
+size = Vector2(28, 28)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 1
 collision_mask = 2
 script = ExtResource("1_player")
 
-[node name="Polygon2D" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(0, -16, 14, 12, -14, 12)
-color = Color(0.3, 0.7, 0.95, 1)
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.15, 0.15)
+texture = ExtResource("2_player_tex")
 
 [node name="HurtArea" type="Area2D" parent="."]
 collision_layer = 0

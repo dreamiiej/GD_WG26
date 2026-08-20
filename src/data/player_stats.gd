@@ -24,24 +24,24 @@ var _current_health: float = 100.0
 
 # 经验 / 等级（文档 3.5）
 var level: int = 1
-var exp: int = 0
+var xp: int = 0
 var exp_to_next: int = 5
 
 
 func reset() -> void:
 	_current_health = max_health
 	level = 1
-	exp = 0
+	xp = 0
 	exp_to_next = 5
 	stats_changed.emit()
 
 
 ## 获得经验，返回是否触发升级
 func gain_exp(amount: int) -> bool:
-	exp += int(amount * exp_gain_mult)
+	xp += int(amount * exp_gain_mult)
 	var leveled := false
-	while exp >= exp_to_next:
-		exp -= exp_to_next
+	while xp >= exp_to_next:
+		xp -= exp_to_next
 		level += 1
 		exp_to_next = int(exp_to_next * 1.25 + 3)  # 平滑成长，避免指数爆炸（文档 7.3）
 		leveled = true

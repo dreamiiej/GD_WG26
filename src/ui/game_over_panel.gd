@@ -3,7 +3,6 @@ extends Control
 
 signal restart_requested
 
-@onready var _panel: Panel = $Panel
 @onready var _restart_btn: Button = $Panel/RestartButton
 
 

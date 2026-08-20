@@ -57,7 +57,7 @@ damage_number_scene = ExtResource("14_dn")
 max_enemies = 300
 spawn_margin = 60.0
 
-[node name="UI" type="Node2D" parent="."]
+[node name="UI" type="CanvasLayer" parent="."]
 
 [node name="HUD" parent="UI" instance=ExtResource("5_hud")]
 

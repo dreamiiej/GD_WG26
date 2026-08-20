@@ -44,8 +44,15 @@ func _on_area_entered(area: Area2D) -> void:
 	# 玩家通过 HurtArea（Area2D）被检测，需取其父节点判断分组。
 	var parent := area.get_parent()
 	if parent != null and parent.is_in_group("player"):
-		picked_up.emit(exp_value)
-		released.emit(self)
+		# 物理回调内禁止直接回收节点（released 会级联移除 Area2D），延迟执行
+		_collect.call_deferred()
+
+
+func _collect() -> void:
+	if not is_instance_valid(self):
+		return
+	picked_up.emit(exp_value)
+	released.emit(self)
 
 
 func set_range(r: float) -> void:

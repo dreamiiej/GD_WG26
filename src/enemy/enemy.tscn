@@ -10,9 +10,7 @@ collision_layer = 2
 collision_mask = 0
 script = ExtResource("1_enemy")
 
-[node name="Polygon2D" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(0, -14, 13, 9, -13, 9)
-color = Color(0.8, 0.2, 0.2, 1)
+[node name="Sprite2D" type="Sprite2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleEnemy")

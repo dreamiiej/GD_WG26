@@ -1,6 +1,7 @@
-[gd_resource type="EnemyData" script_class="EnemyData" load_steps=2 format=3 uid="uid://bopll0ry7e441"]
+[gd_resource type="Resource" script_class="EnemyData" load_steps=3 format=3 uid="uid://bopll0ry7e441"]
 
 [ext_resource type="Script" uid="uid://csr7r8ulq8svw" path="res://src/data/enemy_data.gd" id="1_ed"]
+[ext_resource type="Texture2D" uid="uid://cve4pu1x4th8c" path="res://assets/characters/enemy_fast.png" id="2_tex"]
 
 [resource]
 script = ExtResource("1_ed")
@@ -11,3 +12,4 @@ contact_damage = 6.0
 exp_value = 2
 size = 12.0
 color = Color(0.55, 0.27, 0.68, 1)
+sprite_texture = ExtResource("2_tex")

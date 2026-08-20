@@ -36,16 +36,19 @@ func _physics_process(delta: float) -> void:
 
 func _on_body_entered(body: Node) -> void:
 	if body.is_in_group("enemy"):
-		_apply_hit(body)
+		# 物理回调内禁止直接改节点树（take_damage 可能级联生成宝石/回收子弹），延迟执行
+		_apply_hit.call_deferred(body)
 
 
 func _on_area_entered(area: Area2D) -> void:
 	var parent := area.get_parent()
 	if parent != null and parent.is_in_group("enemy"):
-		_apply_hit(parent)
+		_apply_hit.call_deferred(parent)
 
 
 func _apply_hit(target: Node) -> void:
+	if not is_instance_valid(target):
+		return
 	if target in _hit_targets:
 		return
 	_hit_targets.append(target)

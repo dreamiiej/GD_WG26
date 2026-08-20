@@ -34,8 +34,9 @@ func reset() -> void:
 		if is_instance_valid(n):
 			n.queue_free()
 	# 回收所有在场子弹
-	for p in projectile_container.get_children():
-		_release_projectile(p)
+	if projectile_container != null:
+		for p in projectile_container.get_children():
+			_release_projectile(p)
 	_weapons.clear()
 	_damage_mult.clear()
 	_cooldowns.clear()
@@ -141,7 +142,7 @@ func _fire_projectile(data: WeaponData, dmg_mult: float) -> void:
 		if count > 1:
 			offset = lerp(-spread * 0.5, spread * 0.5, float(k) / float(count - 1))
 		var dir := base_dir.rotated(offset)
-		var p: Area2D = _pool.obtain(data.projectile_scene, projectile_container)
+		var p: Area2D = _pool.obtain(data.projectile_scene, projectile_container if projectile_container != null else _owner)
 		if p == null:
 			continue
 		p.set_meta("pool_scene", data.projectile_scene)

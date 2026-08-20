@@ -12,7 +12,7 @@ signal enemy_spawned(enemy: Node)
 var _player: Node2D
 var _enemies_node: Node2D
 @export var spawn_margin: float = 60.0
-var _max_enemies: int = 300
+@export var max_enemies: int = 300
 
 var _running := false
 var _wave_index: int = 0
@@ -44,7 +44,7 @@ func _process(delta: float) -> void:
 		_apply_wave(_wave_index)
 
 	_spawn_timer -= delta
-	if _spawn_timer <= 0.0 and _enemies_node.get_child_count() < _max_enemies:
+	if _spawn_timer <= 0.0 and _enemies_node.get_child_count() < max_enemies:
 		_spawn_timer = _current.spawn_interval
 		_spawn_enemy()
 

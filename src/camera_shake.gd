@@ -17,8 +17,8 @@ func _process(delta: float) -> void:
 		return
 	_time += delta
 	# trauma 平方衰减，手感更自然
-	var shake := _trauma * _trauma
-	var ox := randf_range(-1, 1) * _max_offset * shake
-	var oy := randf_range(-1, 1) * _max_offset * shake
+	var shake_power := _trauma * _trauma
+	var ox := randf_range(-1, 1) * _max_offset * shake_power
+	var oy := randf_range(-1, 1) * _max_offset * shake_power
 	offset = Vector2(ox, oy)
 	_trauma = max(_trauma - delta * 1.5, 0.0)

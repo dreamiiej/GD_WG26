@@ -6,7 +6,6 @@ signal upgrade_chosen(data: UpgradeData)
 
 @export var pool: Array[UpgradeData] = []
 
-@onready var _title: Label = $Panel/Title
 @onready var _buttons: Array[Button] = [$Panel/Opt1, $Panel/Opt2, $Panel/Opt3]
 
 var _current: Array[UpgradeData] = []

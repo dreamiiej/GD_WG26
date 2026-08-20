@@ -5,7 +5,6 @@ extends Node2D
 @onready var _player: Node2D = $World/Player
 @onready var _enemies: Node2D = $World/Enemies
 @onready var _pickups: Node2D = $World/Pickups
-@onready var _projectiles: Node2D = $World/Projectiles
 @onready var _weapon_manager: Node = $World/WeaponManager
 @onready var _wave_manager: Node = $World/WaveManager
 @onready var _game_manager: Node = $GameManager
@@ -37,7 +36,7 @@ func _start_run() -> void:
 	_player.finish_level_up()
 	_player.stats.reset()
 	_player.health_changed.emit(_player.stats.current_health, _player.stats.max_health)
-	_player.exp_changed.emit(_player.stats.exp, _player.stats.exp_to_next, _player.stats.level)
+	_player.exp_changed.emit(_player.stats.xp, _player.stats.exp_to_next, _player.stats.level)
 	_weapon_manager.stats = _player.stats
 	_weapon_manager.reset()
 	_weapon_upgrade_stacks.clear()

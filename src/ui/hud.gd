@@ -21,8 +21,8 @@ func update_health(current: float, max_hp: float) -> void:
 	_health_label.text = "HP: %d/%d" % [int(current), int(max_hp)]
 
 
-func update_exp(exp: int, to_next: int, level: int) -> void:
-	_exp_label.text = "EXP: %d/%d" % [exp, to_next]
+func update_exp(xp: int, to_next: int, level: int) -> void:
+	_exp_label.text = "EXP: %d/%d" % [xp, to_next]
 	_level_label.text = "Lv: %d" % level
 
 

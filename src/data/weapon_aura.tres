@@ -1,4 +1,4 @@
-[gd_resource type="WeaponData" script_class="WeaponData" load_steps=3 format=3 uid="uid://b8weapaura001"]
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3 uid="uid://b8weapaura001"]
 
 [ext_resource type="Script" uid="uid://dn2lrvyu28drw" path="res://src/data/weapon_data.gd" id="1_wd"]
 [ext_resource type="PackedScene" uid="uid://b8aura0000001" path="res://src/weapon/aura_effect.tscn" id="2_aura"]

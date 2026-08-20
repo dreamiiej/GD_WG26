@@ -28,7 +28,7 @@ static func build_default_pool() -> Array[UpgradeData]:
 	return pool
 
 
-static func _mk(title: String, desc: String, type: int, stat: String, value: float, is_pct: bool) -> UpgradeData:
+static func _mk(title: String, desc: String, type: UpgradeData.UpgradeType, stat: String, value: float, is_pct: bool) -> UpgradeData:
 	var u := UpgradeData.new()
 	u.title = title
 	u.description = desc
