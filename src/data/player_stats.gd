@@ -12,6 +12,7 @@ signal leveled_up(level: int)
 @export var pickup_range: float = 60.0
 @export var exp_gain_mult: float = 1.0      ## 经验获取倍率（PASSIVE 升级）
 @export var regen: float = 0.0               ## 每秒回血（PASSIVE 升级，由 player 每帧应用）
+@export var incoming_damage_mult: float = 1.0 ## 受伤倍率（护甲类道具临时减伤）
 
 var current_health: float:
 	get:
@@ -21,6 +22,9 @@ var current_health: float:
 		stats_changed.emit()
 
 var _current_health: float = 100.0
+
+# 临时增益（道具触发，到期自动回退）：stat -> {old, remaining}
+var _temp_buffs: Dictionary = {}
 
 # 经验 / 等级（文档 3.5）
 var level: int = 1
@@ -33,6 +37,8 @@ func reset() -> void:
 	level = 1
 	xp = 0
 	exp_to_next = 5
+	incoming_damage_mult = 1.0
+	_temp_buffs.clear()
 	stats_changed.emit()
 
 
@@ -86,3 +92,82 @@ func apply_upgrade(data: UpgradeData) -> void:
 		"regen":
 			regen += data.value
 	stats_changed.emit()
+
+
+# ===================== 临时增益（道具） =====================
+
+## 以倍率临时提升某个属性（move_speed / damage_multiplier / incoming_damage_mult 等）
+func apply_temp_mult(stat: String, mult: float, duration: float) -> void:
+	_begin_temp(stat)
+	var old := _get_stat(stat)
+	_set_stat(stat, old * mult)
+	_remember(stat, old, duration)
+
+
+## 以增量临时改变某个属性（pickup_range 加值 / cooldown_reduction 减冷却等）
+func apply_temp_add(stat: String, delta: float, duration: float) -> void:
+	_begin_temp(stat)
+	var old := _get_stat(stat)
+	var new_val := old + delta
+	if stat == "cooldown_reduction":
+		new_val = clampf(new_val, 0.0, 0.85)
+	_set_stat(stat, new_val)
+	_remember(stat, old, duration)
+
+
+## 每帧调用，递减增益剩余时间并在到期后回退
+func tick_temp_buffs(delta: float) -> void:
+	if _temp_buffs.is_empty():
+		return
+	var expired: Array[String] = []
+	for stat in _temp_buffs:
+		_temp_buffs[stat].remaining -= delta
+		if _temp_buffs[stat].remaining <= 0.0:
+			expired.append(stat)
+	if expired.is_empty():
+		return
+	for stat in expired:
+		_set_stat(stat, _temp_buffs[stat].old)
+		_temp_buffs.erase(stat)
+	stats_changed.emit()
+
+
+func _begin_temp(stat: String) -> void:
+	# 若已有同名增益，先回退旧值再应用新的
+	if _temp_buffs.has(stat):
+		_set_stat(stat, _temp_buffs[stat].old)
+		_temp_buffs.erase(stat)
+
+
+func _remember(stat: String, old: float, duration: float) -> void:
+	_temp_buffs[stat] = {"old": old, "remaining": duration}
+	stats_changed.emit()
+
+
+func _get_stat(stat: String) -> float:
+	match stat:
+		"move_speed":
+			return move_speed
+		"damage_multiplier":
+			return damage_multiplier
+		"cooldown_reduction":
+			return cooldown_reduction
+		"pickup_range":
+			return pickup_range
+		"incoming_damage_mult":
+			return incoming_damage_mult
+	return 0.0
+
+
+func _set_stat(stat: String, v: float) -> void:
+	match stat:
+		"move_speed":
+			move_speed = v
+		"damage_multiplier":
+			damage_multiplier = v
+		"cooldown_reduction":
+			cooldown_reduction = v
+		"pickup_range":
+			pickup_range = v
+		"incoming_damage_mult":
+			incoming_damage_mult = v

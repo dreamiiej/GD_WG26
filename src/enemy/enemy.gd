@@ -13,6 +13,7 @@ const HEALTH_BAR_SCENE := preload("res://src/ui/health_bar.gd")
 var _sprite: Sprite2D
 var _player_ref: Node2D                           ## M6 缓存玩家引用，避免每帧全树查找
 var _health_bar: Node2D
+var _nav: Node2D                                  ## 流场寻路缓存（FlowField）
 
 ## 是否为需要顶部血条的精英/BOSS（数据驱动）
 func is_highlighted() -> bool:
@@ -59,7 +60,14 @@ func _physics_process(_delta: float) -> void:
 		_player_ref = get_tree().get_first_node_in_group("player")
 	if _player_ref == null:
 		return
+	# 优先使用流场寻路绕障；无寻路或不可达时退回直线追击
+	if _nav == null or not is_instance_valid(_nav):
+		_nav = get_tree().get_first_node_in_group("flow_field")
 	var dir := (_player_ref.global_position - global_position).normalized()
+	if _nav != null and _nav.has_method("get_walk_direction"):
+		var nav_dir: Vector2 = _nav.get_walk_direction(global_position)
+		if nav_dir.length_squared() > 0.0001:
+			dir = nav_dir
 	velocity = dir * data.move_speed
 	move_and_slide()
 

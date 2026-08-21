@@ -65,6 +65,10 @@ func _physics_process(delta: float) -> void:
 	else:
 		_body.modulate.a = 1.0
 
+	# 道具临时增益倒计时
+	if stats.has_method("tick_temp_buffs"):
+		stats.tick_temp_buffs(delta)
+
 	# 再生（PASSIVE 升级）
 	if stats.regen > 0.0 and stats.current_health < stats.max_health:
 		stats.current_health = min(stats.max_health, stats.current_health + stats.regen * delta)
@@ -94,7 +98,7 @@ func _on_leveled_up(_lvl: int) -> void:
 func take_damage(amount: float) -> void:
 	if _invincible_timer > 0.0 or stats.current_health <= 0:
 		return
-	stats.current_health -= amount
+	stats.current_health -= amount * stats.incoming_damage_mult
 	health_changed.emit(stats.current_health, stats.max_health)
 	# M6 反馈：受伤屏幕震动 + 音效
 	var cam := get_viewport().get_camera_2d()
@@ -123,3 +127,8 @@ func _on_hurt_area_area_entered(area: Area2D) -> void:
 ## 由升级面板调用，解除升级锁定
 func finish_level_up() -> void:
 	_leveling_up = false
+
+
+## 道具：授予短暂无敌（护盾）
+func grant_invincibility(duration: float) -> void:
+	_invincible_timer = maxf(_invincible_timer, duration)

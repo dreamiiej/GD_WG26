@@ -48,3 +48,8 @@ func play_levelup() -> void:
 
 func play_hurt() -> void:
 	_tone(160.0, 0.18, 0.3, 2)
+
+
+func play_pickup() -> void:
+	_tone(880.0, 0.08, 0.2, 1)
+	_tone(1320.0, 0.1, 0.2, 1)

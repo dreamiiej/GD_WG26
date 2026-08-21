@@ -1,0 +1,157 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/menu/settings_panel.gd" id="1_settings"]
+
+[node name="SettingsPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_settings")
+
+[node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.09, 0.12, 1)
+
+[node name="TopBar" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 64.0
+grow_horizontal = 2
+
+[node name="BackButton" type="Button" parent="TopBar"]
+layout_mode = 1
+offset_left = 24.0
+offset_top = 14.0
+offset_right = 124.0
+offset_bottom = 54.0
+text = "← 返回"
+font_size = 18
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.1
+anchor_right = 0.5
+anchor_bottom = 0.1
+offset_left = -200.0
+offset_top = -25.0
+offset_right = 200.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "设置"
+horizontal_alignment = 1
+font_size = 40
+
+[node name="Center" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -400.0
+offset_top = -260.0
+offset_right = 400.0
+offset_bottom = 260.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Center"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Scroll"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="Center/Scroll/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="AudioSection" type="VBoxContainer" parent="Center/Scroll/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="AudioTitle" type="Label" parent="Center/Scroll/Margin/VBox/AudioSection"]
+layout_mode = 2
+text = "音量"
+font_size = 26
+
+[node name="MasterSlider" type="HSlider" parent="Center/Scroll/Margin/VBox/AudioSection"]
+custom_minimum_size = Vector2(700, 24)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="SfxSlider" type="HSlider" parent="Center/Scroll/Margin/VBox/AudioSection"]
+custom_minimum_size = Vector2(700, 24)
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+value = 1.0
+
+[node name="DisplaySection" type="VBoxContainer" parent="Center/Scroll/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DisplayTitle" type="Label" parent="Center/Scroll/Margin/VBox/DisplaySection"]
+layout_mode = 2
+text = "画质"
+font_size = 26
+
+[node name="FullscreenCheck" type="CheckButton" parent="Center/Scroll/Margin/VBox/DisplaySection"]
+layout_mode = 2
+text = "全屏"
+
+[node name="ControlsSection" type="VBoxContainer" parent="Center/Scroll/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ControlsTitle" type="Label" parent="Center/Scroll/Margin/VBox/ControlsSection"]
+layout_mode = 2
+text = "操作（方向键移动）"
+font_size = 26
+
+[node name="ControlsHint" type="Label" parent="Center/Scroll/Margin/VBox/ControlsSection"]
+layout_mode = 2
+text = "当前绑定：WASD / 方向键"
+modulate = Color(0.6, 0.65, 0.7, 1)
+
+[node name="ProgressSection" type="VBoxContainer" parent="Center/Scroll/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ProgressTitle" type="Label" parent="Center/Scroll/Margin/VBox/ProgressSection"]
+layout_mode = 2
+text = "存档 / 进度"
+font_size = 26
+
+[node name="ProgressLabel" type="Label" parent="Center/Scroll/Margin/VBox/ProgressSection"]
+layout_mode = 2
+text = "局数 0   胜利 0   最佳存活 00:00"
+
+[node name="ResetProgressButton" type="Button" parent="Center/Scroll/Margin/VBox/ProgressSection"]
+custom_minimum_size = Vector2(220, 44)
+layout_mode = 2
+text = "重置全部进度"

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="DifficultyConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/data/difficulty_config.gd" id="1_dc"]
+
+[resource]
+script = ExtResource("1_dc")
+id = "normal"
+display_name = "普通"
+description = "标准体验"
+enemy_health_mult = 1.0
+enemy_speed_mult = 1.0
+spawn_interval_mult = 1.0
+elite_boss_health_mult = 1.0
+exp_mult = 1.0
+max_enemies = 300

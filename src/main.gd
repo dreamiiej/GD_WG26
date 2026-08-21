@@ -11,9 +11,16 @@ extends Node2D
 @onready var _hud: CanvasLayer = $UI/HUD
 @onready var _game_over: Control = $UI/GameOverPanel
 @onready var _level_up: Control = $UI/LevelUpPanel
+@onready var _battlefield: Node2D = $World/Battlefield
+@onready var _flow_field: Node2D = $World/FlowField
+@onready var _camera: Camera2D = $World/Camera2D
 
 var _full_pool: Array[UpgradeData] = []
 var _weapon_upgrade_stacks: Dictionary = {}   ## weapon_id -> 已强化层数
+var _acquired: Array[Dictionary] = []         ## 已选择的技能（供 HUD 技能列表展示）
+var _run_elapsed: float = 0.0                 ## 本局存活时间（结算存档用）
+var _run_active: bool = false                 ## 本局是否进行中（用于累计存活时间）
+var _difficulty_retries: int = 0              ## 难度应用重试计数
 
 
 func _ready() -> void:
@@ -21,9 +28,10 @@ func _ready() -> void:
 	_player.exp_changed.connect(_hud.update_exp)
 	_player.player_died.connect(_on_player_died)
 	_player.request_level_up.connect(_on_request_level_up)
-	_game_manager.game_over.connect(_game_over.show_panel)
-	_game_manager.victory.connect(_game_over.show_victory)
+	_game_manager.game_over.connect(_on_game_over)
+	_game_manager.victory.connect(_on_victory)
 	_game_over.restart_requested.connect(_restart)
+	_game_over.menu_requested.connect(_on_menu_requested)
 	_level_up.upgrade_chosen.connect(_on_upgrade_chosen)
 	# 升级池（文档 3.5，数据驱动）
 	_full_pool = UpgradePool.build_default_pool()
@@ -33,7 +41,18 @@ func _ready() -> void:
 	# v2 M7：精英/BOSS 刷出 → 顶部血条
 	_wave_manager.elite_spawned.connect(_hud.track_elite)
 	_wave_manager.boss_spawned.connect(_hud.track_elite)
+	# 流场寻路：基于战场矩形与玩家建立导航
+	if _battlefield != null and _flow_field != null and _flow_field.has_method("setup"):
+		_flow_field.setup(_battlefield.bounds, _player)
 	_start_run()
+
+
+## 相机跟随玩家中心，边界由相机 limit 限制在战场内
+func _process(delta: float) -> void:
+	if _camera != null and is_instance_valid(_player):
+		_camera.global_position = _player.global_position
+	if _run_active:
+		_run_elapsed += delta
 
 
 func _start_run() -> void:
@@ -44,10 +63,42 @@ func _start_run() -> void:
 	_weapon_manager.stats = _player.stats
 	_weapon_manager.reset()
 	_weapon_upgrade_stacks.clear()
+	_acquired.clear()
+	_run_elapsed = 0.0
+	_run_active = true
 	_hud.reset_time()
 	_hud.update_wave(0)
+	_hud.update_skills(_acquired)
+	# 局外内容 M9：从 GameFlow 读取当前难度并应用到刷怪
+	_apply_difficulty()
 	get_tree().paused = false
 	_game_manager.start(_player, _enemies, _pickups)
+
+
+## 局外内容 M9：读取 GameFlow 当前难度并应用到 WaveManager
+func _apply_difficulty() -> void:
+	if not _flow_valid():
+		_difficulty_retries += 1
+		if _difficulty_retries <= 600:
+			call_deferred("_apply_difficulty")
+		return
+	_difficulty_retries = 0
+	var cfg: Resource = _game_flow().current_difficulty
+	if cfg == null:
+		return
+	if _wave_manager != null and _wave_manager.has_method("apply_difficulty"):
+		_wave_manager.apply_difficulty(cfg)
+
+
+func _flow_valid() -> bool:
+	return _game_flow() != null
+
+
+## GameFlow 为自动加载单例，从场景树根节点访问
+func _game_flow() -> Node:
+	if get_tree() == null:
+		return null
+	return get_tree().root.get_node_or_null("GameFlow")
 
 
 func _on_request_level_up() -> void:
@@ -83,11 +134,30 @@ func _on_upgrade_chosen(data: UpgradeData) -> void:
 				_weapon_manager.upgrade_weapon(data.weapon_id, data.value)
 				_weapon_upgrade_stacks[data.weapon_id] = _weapon_upgrade_stacks.get(data.weapon_id, 0) + 1
 	_player.health_changed.emit(_player.stats.current_health, _player.stats.max_health)
+	# 记录已选技能并刷新 HUD 技能列表
+	_record_acquired(data)
+	_hud.update_skills(_acquired)
 	_player.finish_level_up()
 	# M6 反馈：升级音效
 	var sfx := get_tree().get_first_node_in_group("sfx")
 	if sfx != null and sfx.has_method("play_levelup"):
 		sfx.play_levelup()
+
+
+## 记录本次选择的升级项到技能列表（相同武器强化会累加显示层数）
+func _record_acquired(data: UpgradeData) -> void:
+	var type_tag := "weapon" if data.type == UpgradeData.UpgradeType.WEAPON else "stat"
+	var title := data.title
+	if data.type == UpgradeData.UpgradeType.WEAPON and not data.unlock_weapon:
+		# 此处栈数已在 _on_upgrade_chosen 中累加，直接使用即可
+		var stacks: int = _weapon_upgrade_stacks.get(data.weapon_id, 0)
+		title = "%s  Lv.%d" % [data.title, stacks]
+	# 若已存在同名技能（仅强化叠加），更新描述，避免重复行
+	for i in _acquired.size():
+		if _acquired[i].get("key", "") == data.title and _acquired[i].get("type", "") == type_tag:
+			_acquired[i] = {"key": data.title, "title": title, "description": data.description, "type": type_tag}
+			return
+	_acquired.append({"key": data.title, "title": title, "description": data.description, "type": type_tag})
 
 
 ## 解锁新武器（按 weapon_id 查找数据资源并交给 WeaponManager）
@@ -109,6 +179,24 @@ func _find_weapon_data(weapon_id: String) -> WeaponData:
 
 func _on_player_died() -> void:
 	_game_manager.on_player_died()
+
+
+func _on_game_over() -> void:
+	_run_active = false
+	var level: int = _player.stats.level if _player != null and _player.stats != null else 0
+	_game_over.show_result("游戏结束", _run_elapsed, level, false)
+
+
+func _on_victory() -> void:
+	_run_active = false
+	var level: int = _player.stats.level if _player != null and _player.stats != null else 0
+	_game_over.show_result("关卡胜利！", _run_elapsed, level, true)
+
+
+func _on_menu_requested() -> void:
+	var flow := _game_flow()
+	if flow != null and flow.has_method("go_to_menu"):
+		flow.go_to_menu()
 
 
 func _restart() -> void:

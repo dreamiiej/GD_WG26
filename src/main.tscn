@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://bqi74dwgkbom" path="res://src/weapon/weapon_manager.gd" id="7_wm"]
 [ext_resource type="Resource" uid="uid://b8weapdef0001" path="res://src/data/weapon_default.tres" id="8_wd"]
 [ext_resource type="PackedScene" uid="uid://b8expgem00001" path="res://src/pickup/exp_gem.tscn" id="9_gem"]
+[ext_resource type="PackedScene" path="res://src/pickup/item_pickup.tscn" id="23_item"]
 [ext_resource type="PackedScene" uid="uid://b8dmg0000001" path="res://src/ui/damage_number.tscn" id="14_dn"]
 [ext_resource type="PackedScene" uid="uid://b8levelup0001" path="res://src/ui/level_up_panel.tscn" id="10_lvl"]
 [ext_resource type="Script" uid="uid://dmj6mga786dp7" path="res://src/wave_manager.gd" id="11_wave"]
@@ -18,25 +19,33 @@
 [ext_resource type="PackedScene" uid="uid://b8enemy000001" path="res://src/enemy/enemy.tscn" id="17_esc"]
 [ext_resource type="Resource" path="res://src/data/enemy_elite.tres" id="18_elite"]
 [ext_resource type="Resource" path="res://src/data/enemy_final_boss.tres" id="19_fboss"]
-
-
-
-[sub_resource type="RectangleShape2D" id="WorldRect"]
-size = Vector2(2000, 2000)
+[ext_resource type="Script" path="res://src/battlefield.gd" id="20_bf"]
+[ext_resource type="Script" path="res://src/flow_field.gd" id="21_ff"]
+[ext_resource type="PackedScene" path="res://src/obstacle.tscn" id="22_obs"]
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_main")
 
 [node name="World" type="Node2D" parent="."]
 
+[node name="Battlefield" type="Node2D" parent="World"]
+script = ExtResource("20_bf")
+obstacle_count = 60
+obstacle_min_size = 50
+obstacle_max_size = 150
+obstacle_scene = ExtResource("22_obs")
+
 [node name="Player" parent="World" instance=ExtResource("2_player")]
-position = Vector2(960, 540)
+position = Vector2(0, 0)
 
 [node name="Enemies" type="Node2D" parent="World"]
 
 [node name="Pickups" type="Node2D" parent="World"]
 
 [node name="Projectiles" type="Node2D" parent="World"]
+
+[node name="FlowField" type="Node2D" parent="World"]
+script = ExtResource("21_ff")
 
 [node name="WeaponManager" type="Node" parent="World"]
 script = ExtResource("7_wm")
@@ -56,15 +65,23 @@ elite_interval = 180.0
 boss_time = 720.0
 
 [node name="Camera2D" type="Camera2D" parent="World"]
-position = Vector2(960, 540)
+position = Vector2(0, 0)
+limit_left = -3840
+limit_top = -2160
+limit_right = 3840
+limit_bottom = 2160
+position_smoothing_enabled = true
+position_smoothing_speed = 8.0
 script = ExtResource("15_cam")
 
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("4_gm")
 gem_scene = ExtResource("9_gem")
+item_pickup_scene = ExtResource("23_item")
 damage_number_scene = ExtResource("14_dn")
 max_enemies = 300
 spawn_margin = 60.0
+item_drop_chance = 0.03
 
 [node name="UI" type="CanvasLayer" parent="."]
 

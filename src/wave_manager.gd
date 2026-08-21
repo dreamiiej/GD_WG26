@@ -34,6 +34,9 @@ var _next_elite_time: float = 180.0
 var _boss_spawned := false
 var _clock: Node                             ## RunClock（PROCESS_MODE_ALWAYS）
 
+## 局外内容 M9：当前难度倍率（由 main 通过 apply_difficulty 注入）
+var _difficulty: DifficultyConfig = null
+
 
 func _ready() -> void:
 	_clock = load("res://src/run_clock.gd").new()
@@ -82,7 +85,10 @@ func _process(delta: float) -> void:
 
 	_spawn_timer -= delta
 	if _spawn_timer <= 0.0 and _enemies_node.get_child_count() < max_enemies:
-		_spawn_timer = _current.spawn_interval
+		var interval := _current.spawn_interval
+		if _difficulty != null:
+			interval *= _difficulty.spawn_interval_mult
+		_spawn_timer = interval
 		_spawn_enemy()
 
 
@@ -90,6 +96,20 @@ func _apply_wave(idx: int) -> void:
 	_current = wave_table.waves[idx]
 	_spawn_timer = 0.0
 	wave_changed.emit(idx)
+
+
+## 局外内容 M9：应用难度倍率（main 在开局时调用）
+func apply_difficulty(cfg: DifficultyConfig) -> void:
+	_difficulty = cfg
+	if cfg == null:
+		return
+	if cfg.max_enemies > 0:
+		max_enemies = cfg.max_enemies
+
+
+## 调试用：返回当前应用难度的 id
+func get_debug_difficulty() -> String:
+	return _difficulty.id if _difficulty != null else "none"
 
 
 func _spawn_elite() -> void:
@@ -113,6 +133,9 @@ func _instantiate_special(scene: PackedScene, data_ref: EnemyData) -> Node2D:
 	var e: Node2D = scene.instantiate()
 	var base := data_ref if data_ref != null else base_enemy_data
 	var d: EnemyData = base.duplicate()
+	# 局外内容 M9：应用难度对精英/BOSS 的血量倍率
+	if _difficulty != null:
+		d.max_health *= _difficulty.elite_boss_health_mult
 	if d.current_health <= 0.0:
 		d.current_health = d.max_health
 	e.data = d
@@ -137,6 +160,11 @@ func _spawn_enemy() -> void:
 	d.move_speed *= _current.speed_mult
 	d.contact_damage *= _current.damage_mult
 	d.exp_value = int(d.exp_value * _current.exp_mult)
+	# 局外内容 M9：应用难度倍率（血量 / 移速 / 经验）
+	if _difficulty != null:
+		d.max_health *= _difficulty.enemy_health_mult
+		d.move_speed *= _difficulty.enemy_speed_mult
+		d.exp_value = int(d.exp_value * _difficulty.exp_mult)
 	e.data = d
 	e.global_position = _random_offscreen_position()
 	_enemies_node.add_child(e)
@@ -148,8 +176,16 @@ func _random_offscreen_position() -> Vector2:
 	var view := get_viewport().get_visible_rect().size
 	var half := view * 0.5 + Vector2(spawn_margin, spawn_margin)
 	var side := randi() % 4
+	var pos := Vector2.ZERO
 	match side:
-		0: return cam.global_position + Vector2(randf_range(-half.x, half.x), -half.y)
-		1: return cam.global_position + Vector2(randf_range(-half.x, half.x), half.y)
-		2: return cam.global_position + Vector2(-half.x, randf_range(-half.y, half.y))
-		_: return cam.global_position + Vector2(half.x, randf_range(-half.y, half.y))
+		0: pos = cam.global_position + Vector2(randf_range(-half.x, half.x), -half.y)
+		1: pos = cam.global_position + Vector2(randf_range(-half.x, half.x), half.y)
+		2: pos = cam.global_position + Vector2(-half.x, randf_range(-half.y, half.y))
+		_: pos = cam.global_position + Vector2(half.x, randf_range(-half.y, half.y))
+	# 确保刷怪点落在战场边界内（含内缩），避免刷到墙外
+	var bf := get_tree().get_first_node_in_group("battlefield")
+	if bf != null and bf.has_method("get_spawn_bounds"):
+		var rb: Rect2 = bf.get_spawn_bounds()
+		pos.x = clampf(pos.x, rb.position.x, rb.end.x)
+		pos.y = clampf(pos.y, rb.position.y, rb.end.y)
+	return pos
