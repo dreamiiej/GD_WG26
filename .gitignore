@@ -18,6 +18,7 @@ Thumbs.db
 .codebuddy/
 .vscode/
 .idea/
+.trae/
 
 # Logs
 logs/
