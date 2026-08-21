@@ -90,6 +90,12 @@ layout_mode = 2
 text = "开始游戏"
 font_size = 24
 
+[node name="CollectionButton" type="Button" parent="Center/VBox"]
+custom_minimum_size = Vector2(240, 56)
+layout_mode = 2
+text = "道具收藏"
+font_size = 24
+
 [node name="SettingsButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(240, 56)
 layout_mode = 2

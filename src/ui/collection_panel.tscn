@@ -1,0 +1,123 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/collection_panel.gd" id="1_collection"]
+
+[node name="CollectionPanel" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_collection")
+
+[node name="Bg" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.08, 0.09, 0.12, 1)
+
+[node name="TopBar" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 64.0
+grow_horizontal = 2
+
+[node name="BackButton" type="Button" parent="TopBar"]
+layout_mode = 1
+offset_left = 24.0
+offset_top = 14.0
+offset_right = 124.0
+offset_bottom = 54.0
+text = "← 返回"
+font_size = 18
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.08
+anchor_right = 0.5
+anchor_bottom = 0.08
+offset_left = -200.0
+offset_top = -25.0
+offset_right = 200.0
+offset_bottom = 25.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "道具收藏"
+horizontal_alignment = 1
+font_size = 40
+
+[node name="SummaryLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.16
+anchor_right = 0.5
+anchor_bottom = 0.16
+offset_left = -200.0
+offset_top = -15.0
+offset_right = 200.0
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "收藏  0 / 0"
+horizontal_alignment = 1
+font_size = 20
+modulate = Color(0.6, 0.65, 0.7, 1)
+
+[node name="HintLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.88
+anchor_right = 0.5
+anchor_bottom = 0.88
+offset_left = -500.0
+offset_top = -15.0
+offset_right = 500.0
+offset_bottom = 15.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "在局内拾取并使用道具即可解锁收藏"
+horizontal_alignment = 1
+font_size = 16
+modulate = Color(0.5, 0.52, 0.56, 1)
+
+[node name="Center" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 120.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Scroll" type="ScrollContainer" parent="Center"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Center/Scroll"]
+layout_mode = 2
+theme_override_constants/margin_left = 30
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 30
+theme_override_constants/margin_bottom = 20
+
+[node name="Grid" type="GridContainer" parent="Center/Scroll/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 16
+theme_override_constants/v_separation = 16
+columns = 4

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="PlayerClass" load_steps=2 format=3 uid="uid://b8classwarr001"]
+
+[ext_resource type="Script" path="res://src/data/player_class.gd" id="1_pc"]
+
+[resource]
+script = ExtResource("1_pc")
+class_id = "warrior"
+display_name = "剑士"
+description = "攻守均衡的近战剑客，天生抗揍，以剑刃风暴扫荡群敌。"
+base_max_health = 150.0
+base_move_speed = 210.0
+base_damage_multiplier = 1.0
+base_cooldown_reduction = 0.0
+base_regen = 0.5
+start_weapon = null
+start_skill_ids = Array[String](["blade_fury"])

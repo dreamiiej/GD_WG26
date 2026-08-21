@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="PlayerClass" load_steps=3 format=3 uid="uid://b8classrang001"]
+
+[ext_resource type="Script" path="res://src/data/player_class.gd" id="1_pc"]
+[ext_resource type="Resource" path="res://src/data/weapon_multishot.tres" id="2_weap"]
+
+[resource]
+script = ExtResource("1_pc")
+class_id = "ranger"
+display_name = "猎手"
+description = "敏捷的远程射手，天生多重飞弹，机动与输出兼备。"
+base_max_health = 100.0
+base_move_speed = 245.0
+base_damage_multiplier = 1.1
+base_cooldown_reduction = 0.0
+base_regen = 0.0
+start_weapon = ExtResource("2_weap")
+start_skill_ids = Array[String](["volley"])

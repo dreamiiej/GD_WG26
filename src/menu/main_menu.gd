@@ -3,12 +3,14 @@ extends Control
 
 @onready var _best_label: Label = $Center/VBox/BestLabel
 @onready var _start_btn: Button = $Center/VBox/StartButton
+@onready var _collection_btn: Button = $Center/VBox/CollectionButton
 @onready var _settings_btn: Button = $Center/VBox/SettingsButton
 @onready var _quit_btn: Button = $Center/VBox/QuitButton
 
 
 func _ready() -> void:
 	_start_btn.pressed.connect(_on_start_pressed)
+	_collection_btn.pressed.connect(_on_collection_pressed)
 	_settings_btn.pressed.connect(_on_settings_pressed)
 	_quit_btn.pressed.connect(_on_quit_pressed)
 	_update_best()
@@ -30,7 +32,11 @@ func _format_time(sec: float) -> String:
 
 
 func _on_start_pressed() -> void:
-	get_tree().change_scene_to_file("res://src/menu/difficulty_select.tscn")
+	get_tree().change_scene_to_file("res://src/menu/class_select.tscn")
+
+
+func _on_collection_pressed() -> void:
+	get_tree().change_scene_to_file("res://src/ui/collection_panel.tscn")
 
 
 func _on_settings_pressed() -> void:

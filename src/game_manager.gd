@@ -152,10 +152,19 @@ func _on_item_picked(data: ItemData) -> void:
 	if data == null or _player == null:
 		return
 	_apply_item(data)
+	# 局外收藏：玩家使用过该道具即解锁（记入 GameFlow 存档）
+	_unlock_item_in_collection(data.item_type)
 	# 反馈音效
 	var sfx: Node = get_tree().get_first_node_in_group("sfx")
 	if sfx != null and sfx.has_method("play_pickup"):
 		sfx.play_pickup()
+
+
+## 收藏系统：把已使用的道具类型记入 GameFlow（自动加载单例）
+func _unlock_item_in_collection(item_type: int) -> void:
+	var flow: Node = get_tree().root.get_node_or_null("GameFlow")
+	if flow != null and flow.has_method("unlock_item"):
+		flow.unlock_item(item_type)
 
 
 func _apply_item(data: ItemData) -> void:

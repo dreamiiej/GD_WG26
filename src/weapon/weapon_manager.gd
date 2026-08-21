@@ -30,6 +30,13 @@ func _ready() -> void:
 
 
 func reset() -> void:
+	clear_weapons()
+	if default_weapon != null:
+		add_weapon(default_weapon)
+
+
+## 清空所有武器与在场效果，但不重载默认武器（职业系统可据此替换初始武器）。
+func clear_weapons() -> void:
 	for n in _aura_nodes:
 		if is_instance_valid(n):
 			n.queue_free()
@@ -41,8 +48,6 @@ func reset() -> void:
 	_damage_mult.clear()
 	_cooldowns.clear()
 	_aura_nodes.clear()
-	if default_weapon != null:
-		add_weapon(default_weapon)
 
 
 func has_weapon(weapon_id: String) -> bool:

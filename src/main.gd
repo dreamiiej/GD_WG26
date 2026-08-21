@@ -77,6 +77,8 @@ func _start_run() -> void:
 	var skillsys: Node = _player.get_skill_system()
 	if skillsys != null and skillsys.has_method("clear_all"):
 		skillsys.clear_all()
+	# 职业系统：应用所选职业的初始数值 / 初始武器 / 初始技能
+	_apply_class()
 	_refresh_skillbar()
 	_run_elapsed = 0.0
 	_run_active = true
@@ -137,6 +139,39 @@ func _apply_difficulty() -> void:
 
 func _flow_valid() -> bool:
 	return _game_flow() != null
+
+
+## 职业系统：从 GameFlow 读取当前职业，应用其初始基础数值 / 初始武器 / 初始技能。
+func _apply_class() -> void:
+	if not _flow_valid():
+		return
+	var cls: PlayerClass = _game_flow().current_class
+	if cls == null:
+		return
+	# 1. 初始数值（覆盖 PlayerStats 对应基础属性，并同步当前生命）
+	var st: Resource = _player.stats
+	if cls.base_max_health > 0.0:
+		st.max_health = cls.base_max_health
+	if cls.base_move_speed > 0.0:
+		st.move_speed = cls.base_move_speed
+	if cls.base_damage_multiplier > 0.0:
+		st.damage_multiplier = cls.base_damage_multiplier
+	if cls.base_cooldown_reduction > 0.0:
+		st.cooldown_reduction = cls.base_cooldown_reduction
+	if cls.base_regen > 0.0:
+		st.regen = cls.base_regen
+	st.current_health = st.max_health
+	_player.health_changed.emit(st.current_health, st.max_health)
+	# 2. 初始武器：若职业指定了开局武器，则用它替换默认武器
+	if cls.start_weapon != null and _weapon_manager != null:
+		if _weapon_manager.has_method("clear_weapons"):
+			_weapon_manager.clear_weapons()
+		_weapon_manager.add_weapon(cls.start_weapon)
+	# 3. 初始技能：按 skill_id 从技能池习得
+	for sid in cls.start_skill_ids:
+		var data: SkillData = _skill_map.get(sid)
+		if data != null:
+			_player.learn_skill(data)
 
 
 ## GameFlow 为自动加载单例，从场景树根节点访问

@@ -13,8 +13,18 @@ const DIFFICULTY_RESOURCES := {
 	"hard": preload("res://src/data/difficulty_hard.tres"),
 }
 
+## 职业数据资源映射（数据驱动，id → PlayerClass）
+const CLASS_RESOURCES := {
+	"warrior": preload("res://src/data/player_class_warrior.tres"),
+	"mage": preload("res://src/data/player_class_mage.tres"),
+	"ranger": preload("res://src/data/player_class_ranger.tres"),
+}
+
 ## 当前选择的难度
 var current_difficulty: DifficultyConfig = DIFFICULTY_RESOURCES["easy"]
+
+## 当前选择的职业
+var current_class: PlayerClass = CLASS_RESOURCES["warrior"]
 
 ## 已通关的难度集合（id → true），决定难度解锁
 var _cleared: Dictionary = {}
@@ -24,6 +34,10 @@ var best_survive_time: float = 0.0
 var best_level: int = 0
 var total_games: int = 0
 var total_wins: int = 0
+
+## 收藏系统：已使用（解锁）过的战场道具（item_type int → true）。
+## 玩家拾取并使用某道具后解锁，未解锁的道具在收藏界面置灰。
+var _unlocked_items: Dictionary = {}
 
 
 func _ready() -> void:
@@ -45,6 +59,10 @@ func load_save() -> void:
 	var cleared: Array = cfg.get_value("progress", "cleared", [])
 	for id in cleared:
 		_cleared[str(id)] = true
+	_unlocked_items.clear()
+	var unlocked: Array = cfg.get_value("progress", "unlocked_items", [])
+	for t in unlocked:
+		_unlocked_items[int(t)] = true
 	best_survive_time = float(cfg.get_value("progress", "best_survive_time", 0.0))
 	best_level = int(cfg.get_value("progress", "best_level", 0))
 	total_games = int(cfg.get_value("progress", "total_games", 0))
@@ -54,6 +72,7 @@ func load_save() -> void:
 func _save() -> void:
 	var cfg := ConfigFile.new()
 	cfg.set_value("progress", "cleared", _cleared.keys())
+	cfg.set_value("progress", "unlocked_items", _unlocked_items.keys())
 	cfg.set_value("progress", "best_survive_time", best_survive_time)
 	cfg.set_value("progress", "best_level", best_level)
 	cfg.set_value("progress", "total_games", total_games)
@@ -97,6 +116,7 @@ func record_result(time_alive: float, level: int, victory: bool) -> void:
 ## 重置全部进度
 func reset_progress() -> void:
 	_cleared.clear()
+	_unlocked_items.clear()
 	best_survive_time = 0.0
 	best_level = 0
 	total_games = 0
@@ -104,6 +124,28 @@ func reset_progress() -> void:
 	var cfg := ConfigFile.new()
 	cfg.save(SAVE_PATH)
 	load_save()
+
+
+# ---------------------------------------------------------------------------
+# 收藏系统
+# ---------------------------------------------------------------------------
+
+## 记录玩家使用过某道具（拾取即视为使用），解锁对应收藏条目并写盘。
+func unlock_item(item_type: int) -> void:
+	if _unlocked_items.has(item_type):
+		return
+	_unlocked_items[item_type] = true
+	_save()
+
+
+## 某道具是否已解锁（使用过）
+func is_item_unlocked(item_type: int) -> bool:
+	return _unlocked_items.has(item_type)
+
+
+## 当前已解锁的道具类型集合（用于收藏界面统计）
+func get_unlocked_item_count() -> int:
+	return _unlocked_items.size()
 
 
 func get_all_difficulties() -> Array:
@@ -124,6 +166,23 @@ func get_difficulty(id: String) -> DifficultyConfig:
 func set_difficulty(cfg: DifficultyConfig) -> void:
 	if cfg != null:
 		current_difficulty = cfg
+
+
+## 选择职业
+func set_class(cfg: PlayerClass) -> void:
+	if cfg != null:
+		current_class = cfg
+
+
+func get_all_classes() -> Array:
+	var out: Array = []
+	for id in CLASS_RESOURCES:
+		out.append(CLASS_RESOURCES[id])
+	return out
+
+
+func get_class_by_id(id: String) -> PlayerClass:
+	return CLASS_RESOURCES.get(id, CLASS_RESOURCES["warrior"])
 
 
 func start_game() -> void:
