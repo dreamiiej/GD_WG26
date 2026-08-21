@@ -17,6 +17,8 @@ var _invincible_timer: float = 0.0
 var _hurt_area: Area2D
 var _leveling_up: bool = false
 var _health_bar: Node2D
+var _buff_system: Node
+var _skill_system: Node
 
 @onready var _body: Sprite2D = $Sprite2D
 
@@ -33,6 +35,16 @@ func _ready() -> void:
 	_hurt_area = $HurtArea
 	_hurt_area.body_entered.connect(_on_hurt_area_body_entered)
 	_hurt_area.area_entered.connect(_on_hurt_area_area_entered)
+
+	# Dota2 风格技能 / Buff 系统接线
+	_buff_system = $BuffSystem
+	_skill_system = $SkillSystem
+	if _buff_system != null:
+		_buff_system.target = self
+		_buff_system.stats = stats
+	if _skill_system != null:
+		_skill_system.stats = stats
+		_skill_system.buff_system = _buff_system
 
 	# 头顶血条（红色背景 + 绿色填充），玩家始终显示
 	_health_bar = HEALTH_BAR_SCENE.new()
@@ -69,6 +81,10 @@ func _physics_process(delta: float) -> void:
 	if stats.has_method("tick_temp_buffs"):
 		stats.tick_temp_buffs(delta)
 
+	# Buff 系统计时（护盾 / 无敌 / DOT / HOT / 属性增益）
+	if _buff_system != null and _buff_system.has_method("tick"):
+		_buff_system.tick(delta)
+
 	# 再生（PASSIVE 升级）
 	if stats.regen > 0.0 and stats.current_health < stats.max_health:
 		stats.current_health = min(stats.max_health, stats.current_health + stats.regen * delta)
@@ -98,6 +114,14 @@ func _on_leveled_up(_lvl: int) -> void:
 func take_damage(amount: float) -> void:
 	if _invincible_timer > 0.0 or stats.current_health <= 0:
 		return
+	# Buff 无敌
+	if _buff_system != null and _buff_system.is_invincible():
+		return
+	# 护盾吸收
+	if _buff_system != null:
+		amount = _buff_system.take_shield_damage(amount)
+		if amount <= 0.0:
+			return
 	stats.current_health -= amount * stats.incoming_damage_mult
 	health_changed.emit(stats.current_health, stats.max_health)
 	# M6 反馈：受伤屏幕震动 + 音效
@@ -132,3 +156,41 @@ func finish_level_up() -> void:
 ## 道具：授予短暂无敌（护盾）
 func grant_invincibility(duration: float) -> void:
 	_invincible_timer = maxf(_invincible_timer, duration)
+
+
+# ===================== Buff / 技能接入（Dota2 风格） =====================
+
+## 外部施加 buff（技能 BUFF_SELF / 道具）
+func apply_buff(data: BuffData) -> void:
+	if _buff_system != null and _buff_system.has_method("apply"):
+		_buff_system.apply(data)
+
+
+func get_buff_system() -> Node:
+	return _buff_system
+
+
+## 恢复生命（HOT / 圣疗）
+func apply_heal(amount: float) -> void:
+	if stats == null:
+		return
+	stats.current_health = minf(stats.max_health, stats.current_health + amount)
+	health_changed.emit(stats.current_health, stats.max_health)
+
+
+func get_skill_system() -> Node:
+	return _skill_system
+
+
+## 习得技能（由升级系统调用）
+func learn_skill(data: SkillData) -> bool:
+	if _skill_system != null and _skill_system.has_method("learn"):
+		return _skill_system.learn(data)
+	return false
+
+
+## 提升技能等级
+func upgrade_skill(skill_id: String) -> bool:
+	if _skill_system != null and _skill_system.has_method("upgrade"):
+		return _skill_system.upgrade(skill_id)
+	return false

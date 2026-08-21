@@ -113,7 +113,7 @@ func _recycle_all_gems() -> void:
 		if not is_instance_valid(g) or not g.has_signal("released"):
 			continue
 		# 道具拾取物与经验宝石都带 released 信号；按脚本路径区分回收
-		var scr := g.get_script()
+		var scr: Script = g.get_script()
 		if scr != null and scr.resource_path.ends_with("item_pickup.gd"):
 			_on_item_released(g)
 		else:
@@ -153,7 +153,7 @@ func _on_item_picked(data: ItemData) -> void:
 		return
 	_apply_item(data)
 	# 反馈音效
-	var sfx := get_tree().get_first_node_in_group("sfx")
+	var sfx: Node = get_tree().get_first_node_in_group("sfx")
 	if sfx != null and sfx.has_method("play_pickup"):
 		sfx.play_pickup()
 

@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://b8enemy000001"]
+[gd_scene load_steps=3 format=3 uid="uid://b8enemy000001"]
 
 [ext_resource type="Script" uid="uid://dturie3ttjfcb" path="res://src/enemy/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" uid="uid://dbi0os0x0354u" path="res://src/skill/buff_system.gd" id="2_buff"]
 
 [sub_resource type="CircleShape2D" id="CircleEnemy"]
 radius = 16.0
@@ -14,3 +15,6 @@ script = ExtResource("1_enemy")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleEnemy")
+
+[node name="BuffSystem" type="Node" parent="."]
+script = ExtResource("2_buff")

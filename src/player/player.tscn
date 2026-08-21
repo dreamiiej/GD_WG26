@@ -1,7 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://b8player00001"]
+[gd_scene load_steps=7 format=3 uid="uid://b8player00001"]
 
 [ext_resource type="Script" uid="uid://cxn4xlk55lv7y" path="res://src/player/player.gd" id="1_player"]
 [ext_resource type="Texture2D" uid="uid://d4fw8gcf0gpp4" path="res://assets/characters/player.png" id="2_player_tex"]
+[ext_resource type="Script" uid="uid://dbi0os0x0354u" path="res://src/skill/buff_system.gd" id="3_buff"]
+[ext_resource type="Script" uid="uid://rps0whxkjbcs" path="res://src/skill/skill_system.gd" id="4_skill"]
 
 [sub_resource type="RectangleShape2D" id="RectShapePlayer"]
 size = Vector2(28, 28)
@@ -21,3 +23,9 @@ collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtArea"]
 shape = SubResource("RectShapePlayer")
+
+[node name="BuffSystem" type="Node" parent="."]
+script = ExtResource("3_buff")
+
+[node name="SkillSystem" type="Node" parent="."]
+script = ExtResource("4_skill")

@@ -25,6 +25,22 @@ static func build_default_pool() -> Array[UpgradeData]:
 	pool.append(_mk_weapon("多重飞弹 +25%", "多重飞弹伤害提升 25%", "multishot", false, 99, 0.25))
 	pool.append(_mk_weapon("冰霜光环 +30%", "冰霜光环伤害提升 30%", "aura", false, 99, 0.3))
 
+	# ---- SKILL 解锁（Dota2 风格主动技能，最多叠 1 层）----
+	pool.append(_mk_skill("解锁·剑刃风暴", "旋风斩击周围敌人（自动施放）", "blade_fury", true, 1))
+	pool.append(_mk_skill("解锁·剧毒新星", "爆发毒雾并使敌人中毒（自动施放）", "nova", true, 1))
+	pool.append(_mk_skill("解锁·冰霜新星", "冻结区域内敌人使其减速（自动施放）", "frost_nova", true, 1))
+	pool.append(_mk_skill("解锁·弹幕风暴", "向四周倾泻弹幕（自动施放）", "volley", true, 1))
+	pool.append(_mk_skill("解锁·圣疗", "危急时恢复自身生命（自动施放）", "heal", true, 1))
+	pool.append(_mk_skill("解锁·嗜血狂暴", "提升自身伤害（自动施放）", "berserk", true, 1))
+
+	# ---- SKILL 升级（提升已有技能等级）----
+	pool.append(_mk_skill("剑刃风暴升级", "提升剑刃风暴的威力", "blade_fury", false, 4))
+	pool.append(_mk_skill("剧毒新星升级", "提升剧毒新星的威力", "nova", false, 4))
+	pool.append(_mk_skill("冰霜新星升级", "提升冰霜新星的威力", "frost_nova", false, 4))
+	pool.append(_mk_skill("弹幕风暴升级", "提升弹幕风暴的威力", "volley", false, 4))
+	pool.append(_mk_skill("圣疗升级", "提升圣疗的回复量", "heal", false, 4))
+	pool.append(_mk_skill("嗜血狂暴升级", "提升嗜血狂暴的效果", "berserk", false, 4))
+
 	return pool
 
 
@@ -48,4 +64,15 @@ static func _mk_weapon(title: String, desc: String, weapon_id: String, unlock: b
 	u.unlock_weapon = unlock
 	u.max_stacks = max_stacks
 	u.value = value
+	return u
+
+
+static func _mk_skill(title: String, desc: String, skill_id: String, unlock: bool, max_stacks: int) -> UpgradeData:
+	var u := UpgradeData.new()
+	u.title = title
+	u.description = desc
+	u.type = UpgradeData.UpgradeType.SKILL
+	u.skill_id = skill_id
+	u.unlock_skill = unlock
+	u.max_stacks = max_stacks
 	return u

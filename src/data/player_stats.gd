@@ -145,6 +145,15 @@ func _remember(stat: String, old: float, duration: float) -> void:
 
 
 func _get_stat(stat: String) -> float:
+	return get_stat(stat)
+
+
+func _set_stat(stat: String, v: float) -> void:
+	set_stat(stat, v)
+
+
+## 公开读取属性（BuffSystem / 道具通用）。返回 0 表示不认识的属性。
+func get_stat(stat: String) -> float:
 	match stat:
 		"move_speed":
 			return move_speed
@@ -156,18 +165,32 @@ func _get_stat(stat: String) -> float:
 			return pickup_range
 		"incoming_damage_mult":
 			return incoming_damage_mult
+		"max_health":
+			return max_health
+		"regen":
+			return regen
+		"exp_gain_mult":
+			return exp_gain_mult
 	return 0.0
 
 
-func _set_stat(stat: String, v: float) -> void:
+## 公开写入属性（带冷却上限夹取）。
+func set_stat(stat: String, v: float) -> void:
 	match stat:
 		"move_speed":
 			move_speed = v
 		"damage_multiplier":
 			damage_multiplier = v
 		"cooldown_reduction":
-			cooldown_reduction = v
+			cooldown_reduction = clampf(v, 0.0, 0.85)
 		"pickup_range":
 			pickup_range = v
 		"incoming_damage_mult":
 			incoming_damage_mult = v
+		"max_health":
+			max_health = maxf(v, 1.0)
+		"regen":
+			regen = v
+		"exp_gain_mult":
+			exp_gain_mult = v
+	stats_changed.emit()

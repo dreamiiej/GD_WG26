@@ -5,6 +5,7 @@ enum UpgradeType {
 	STAT,       ## 直接改 PlayerStats 数值
 	WEAPON,     ## 武器强化（M5 扩展）
 	PASSIVE,    ## 被动效果（M5 扩展）
+	SKILL,      ## 技能（Dota2 风格技能系统）：解锁新技能或提升已有技能等级
 }
 
 @export var title: String = ""
@@ -17,3 +18,6 @@ enum UpgradeType {
 @export var weapon_id: String = ""      ## 对应 WeaponData.weapon_id
 @export var unlock_weapon: bool = false ## true=解锁新武器；false=强化已拥有武器（value 作为该武器倍率增量）
 @export var max_stacks: int = 99        ## 该升级项最多可叠多少层（避免数值爆炸，文档 7.3）
+## SKILL 类型专用：解锁或提升某个技能
+@export var skill_id: String = ""       ## 对应 SkillData.skill_id
+@export var unlock_skill: bool = true   ## true=解锁新技能；false=提升已拥有技能等级

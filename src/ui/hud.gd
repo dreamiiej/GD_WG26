@@ -16,6 +16,8 @@ extends CanvasLayer
 @onready var _elite_fill: ColorRect = $EliteBar/FillBar/Fill
 @onready var _skill_list: VBoxContainer = $Root/SkillsCard/SkillList
 @onready var _skill_list_empty: Label = $Root/SkillsCard/SkillList/SkillListEmpty
+@onready var _skill_bar: HBoxContainer = $SkillBar/Slots
+@onready var _skill_bar_container: Control = $SkillBar
 
 var _elapsed: float = 0.0
 var _tracked: Node = null                ## 当前正在顶部血条显示的精英/BOSS
@@ -135,6 +137,97 @@ func _refresh_skill_list() -> void:
 
 
 # ---------------------------------------------------------------------------
+# 技能栏（Dota2 风格）：显示已习得技能、等级、冷却与施放闪光
+# ---------------------------------------------------------------------------
+
+var _skill_slots: Array[Dictionary] = []   ## 每个槽位：{ name, level, fill, label, flash }
+
+## 由 main 在技能变化后调用，重建技能栏槽位
+func update_skillbar(skills: Array) -> void:
+	for c in _skill_bar.get_children():
+		_skill_bar.remove_child(c)
+		c.queue_free()
+	_skill_slots.clear()
+	if skills.is_empty():
+		_skill_bar_container.hide()
+		return
+	_skill_bar_container.show()
+	for s in skills:
+		var data = s.data
+		var slot := Panel.new()
+		slot.custom_minimum_size = Vector2(58, 58)
+		var sb := StyleBoxFlat.new()
+		sb.bg_color = Color(0.05, 0.06, 0.08, 1)
+		sb.border_color = Color(0.3, 0.82, 0.92, 0.9)
+		sb.set_border_width_all(1)
+		sb.set_corner_radius_all(4)
+		slot.add_theme_stylebox_override("panel", sb)
+		# 名称标签
+		var name_lbl := Label.new()
+		name_lbl.text = data.display_name
+		name_lbl.position = Vector2(3, 3)
+		name_lbl.size = Vector2(52, 16)
+		name_lbl.add_theme_color_override("font_color", Color(0.3, 0.82, 0.92, 1))
+		name_lbl.add_theme_font_size_override("font_size", 9)
+		name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		slot.add_child(name_lbl)
+		# 等级标签
+		var lv_lbl := Label.new()
+		lv_lbl.text = "Lv.%d" % s.level
+		lv_lbl.position = Vector2(3, 40)
+		lv_lbl.size = Vector2(52, 14)
+		lv_lbl.add_theme_color_override("font_color", Color(0.9, 0.72, 0.28, 1))
+		lv_lbl.add_theme_font_size_override("font_size", 10)
+		lv_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		slot.add_child(lv_lbl)
+		# 冷却遮罩（从上往下覆盖）
+		var cd_fill := ColorRect.new()
+		cd_fill.color = Color(0, 0, 0, 0.55)
+		cd_fill.position = Vector2(0, 0)
+		cd_fill.size = Vector2(58, 58)
+		cd_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot.add_child(cd_fill)
+		# 施放闪光
+		var flash := ColorRect.new()
+		flash.color = Color(0.6, 1, 0.8, 0.0)
+		flash.position = Vector2(0, 0)
+		flash.size = Vector2(58, 58)
+		flash.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		slot.add_child(flash)
+		_skill_bar.add_child(slot)
+		_skill_slots.append({"skill": s, "fill": cd_fill, "flash": flash, "flash_t": 0.0})
+
+
+## 每帧刷新技能栏冷却与施放闪光
+func _process_skillbar(delta: float) -> void:
+	for entry in _skill_slots:
+		var s = entry.get("skill")
+		var fill: ColorRect = entry.get("fill")
+		var flash: ColorRect = entry.get("flash")
+		if s == null or fill == null:
+			continue
+		var ratio: float = s.get_cooldown_ratio()
+		fill.size.y = 58.0 * ratio
+		fill.position.y = 58.0 - fill.size.y
+		# 施放闪光淡出
+		var ft: float = entry.get("flash_t", 0.0)
+		if ft > 0.0:
+			ft -= delta
+			flash.color.a = clampf(ft, 0.0, 1.0) * 0.6
+		else:
+			flash.color.a = 0.0
+		entry["flash_t"] = ft
+
+
+## 技能施放时点亮闪光（由 main / SkillSystem 信号调用）
+func flash_skill(skill_id: String) -> void:
+	for entry in _skill_slots:
+		var s = entry.get("skill")
+		if s != null and s.data.skill_id == skill_id:
+			entry["flash_t"] = 0.25
+
+
+# ---------------------------------------------------------------------------
 # 精英 / BOSS 顶部血条
 # ---------------------------------------------------------------------------
 
@@ -200,6 +293,7 @@ func _process(delta: float) -> void:
 	var m := total / 60.0
 	var s := total % 60
 	_time_value.text = "%02d:%02d" % [int(m), s]
+	_process_skillbar(delta)
 
 
 func reset_time() -> void:

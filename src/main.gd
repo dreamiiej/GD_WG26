@@ -17,10 +17,12 @@ extends Node2D
 
 var _full_pool: Array[UpgradeData] = []
 var _weapon_upgrade_stacks: Dictionary = {}   ## weapon_id -> 已强化层数
+var _skill_upgrade_stacks: Dictionary = {}    ## skill_id -> 已升级层数
 var _acquired: Array[Dictionary] = []         ## 已选择的技能（供 HUD 技能列表展示）
 var _run_elapsed: float = 0.0                 ## 本局存活时间（结算存档用）
 var _run_active: bool = false                 ## 本局是否进行中（用于累计存活时间）
 var _difficulty_retries: int = 0              ## 难度应用重试计数
+var _skill_map: Dictionary = {}               ## skill_id -> SkillData
 
 
 func _ready() -> void:
@@ -35,6 +37,9 @@ func _ready() -> void:
 	_level_up.upgrade_chosen.connect(_on_upgrade_chosen)
 	# 升级池（文档 3.5，数据驱动）
 	_full_pool = UpgradePool.build_default_pool()
+	# Dota2 风格技能池
+	_skill_map = SkillPool.skill_map()
+	_wire_skill_system()
 	# 波次系统（文档 3.4）：GameManager 监听 WaveManager 生成
 	_game_manager.attach_wave_manager(_wave_manager)
 	_wave_manager.wave_changed.connect(_hud.update_wave)
@@ -63,7 +68,16 @@ func _start_run() -> void:
 	_weapon_manager.stats = _player.stats
 	_weapon_manager.reset()
 	_weapon_upgrade_stacks.clear()
+	_skill_upgrade_stacks.clear()
 	_acquired.clear()
+	# 重置 Buff / 技能系统
+	var buff: Node = _player.get_buff_system()
+	if buff != null and buff.has_method("reset"):
+		buff.reset()
+	var skillsys: Node = _player.get_skill_system()
+	if skillsys != null and skillsys.has_method("clear_all"):
+		skillsys.clear_all()
+	_refresh_skillbar()
 	_run_elapsed = 0.0
 	_run_active = true
 	_hud.reset_time()
@@ -73,6 +87,37 @@ func _start_run() -> void:
 	_apply_difficulty()
 	get_tree().paused = false
 	_game_manager.start(_player, _enemies, _pickups)
+
+
+## 接线技能系统：设置效果/弹幕挂载节点，连接施放信号到 HUD
+func _wire_skill_system() -> void:
+	var skillsys: Node = _player.get_skill_system()
+	if skillsys == null:
+		return
+	skillsys.effect_container = $World
+	skillsys.projectile_container = $World/Projectiles
+	skillsys.stats = _player.stats
+	var buff: Node = _player.get_buff_system()
+	if buff != null:
+		skillsys.buff_system = buff
+	if skillsys.has_signal("skill_cast") and not skillsys.skill_cast.is_connected(_on_skill_cast):
+		skillsys.skill_cast.connect(_on_skill_cast)
+
+
+func _on_skill_cast(skill_data: SkillData, level: int) -> void:
+	if _hud != null and _hud.has_method("flash_skill"):
+		_hud.flash_skill(skill_data.skill_id)
+
+
+## 用当前已习得技能刷新底部技能栏
+func _refresh_skillbar() -> void:
+	var skillsys: Node = _player.get_skill_system()
+	if _hud == null:
+		return
+	if skillsys == null or not skillsys.has_method("get_owned_skills"):
+		_hud.update_skillbar([])
+		return
+	_hud.update_skillbar(skillsys.get_owned_skills())
 
 
 ## 局外内容 M9：读取 GameFlow 当前难度并应用到 WaveManager
@@ -107,7 +152,7 @@ func _on_request_level_up() -> void:
 	_level_up.show_choices()
 
 
-## 根据当前状态过滤可用升级项（已解锁武器不再出现，强化层数达上限移除）
+## 根据当前状态过滤可用升级项（已解锁武器不再出现，强化层数达上限移除；技能同理）
 func _build_available_upgrades() -> Array[UpgradeData]:
 	var out: Array[UpgradeData] = []
 	for u in _full_pool:
@@ -118,6 +163,18 @@ func _build_available_upgrades() -> Array[UpgradeData]:
 			else:
 				var stacks: int = _weapon_upgrade_stacks.get(u.weapon_id, 0)
 				if stacks >= u.max_stacks:
+					continue
+		elif u.type == UpgradeData.UpgradeType.SKILL:
+			var skillsys: Node = _player.get_skill_system()
+			var owned: bool = skillsys != null and skillsys.has_skill(u.skill_id)
+			if u.unlock_skill:
+				if owned:
+					continue
+			else:
+				if not owned:
+					continue
+				var sstacks: int = _skill_upgrade_stacks.get(u.skill_id, 0)
+				if sstacks >= u.max_stacks:
 					continue
 		out.append(u)
 	return out
@@ -133,10 +190,17 @@ func _on_upgrade_chosen(data: UpgradeData) -> void:
 			else:
 				_weapon_manager.upgrade_weapon(data.weapon_id, data.value)
 				_weapon_upgrade_stacks[data.weapon_id] = _weapon_upgrade_stacks.get(data.weapon_id, 0) + 1
+		UpgradeData.UpgradeType.SKILL:
+			if data.unlock_skill:
+				_grant_skill(data.skill_id)
+			else:
+				_player.upgrade_skill(data.skill_id)
+				_skill_upgrade_stacks[data.skill_id] = _skill_upgrade_stacks.get(data.skill_id, 0) + 1
 	_player.health_changed.emit(_player.stats.current_health, _player.stats.max_health)
-	# 记录已选技能并刷新 HUD 技能列表
+	# 记录已选技能并刷新 HUD 技能列表 + 底部技能栏
 	_record_acquired(data)
 	_hud.update_skills(_acquired)
+	_refresh_skillbar()
 	_player.finish_level_up()
 	# M6 反馈：升级音效
 	var sfx := get_tree().get_first_node_in_group("sfx")
@@ -144,20 +208,34 @@ func _on_upgrade_chosen(data: UpgradeData) -> void:
 		sfx.play_levelup()
 
 
-## 记录本次选择的升级项到技能列表（相同武器强化会累加显示层数）
+## 记录本次选择的升级项到技能列表（相同武器/技能强化会累加显示层数）
 func _record_acquired(data: UpgradeData) -> void:
-	var type_tag := "weapon" if data.type == UpgradeData.UpgradeType.WEAPON else "stat"
+	var type_tag := "weapon"
+	match int(data.type):
+		UpgradeData.UpgradeType.WEAPON:
+			type_tag = "weapon"
+		UpgradeData.UpgradeType.SKILL:
+			type_tag = "skill"
+		_:
+			type_tag = "stat"
 	var title := data.title
+	var display_key := data.title
 	if data.type == UpgradeData.UpgradeType.WEAPON and not data.unlock_weapon:
-		# 此处栈数已在 _on_upgrade_chosen 中累加，直接使用即可
-		var stacks: int = _weapon_upgrade_stacks.get(data.weapon_id, 0)
-		title = "%s  Lv.%d" % [data.title, stacks]
+		var wstacks: int = _weapon_upgrade_stacks.get(data.weapon_id, 0)
+		title = "%s  Lv.%d" % [data.title, wstacks]
+		display_key = data.title
+	elif data.type == UpgradeData.UpgradeType.SKILL and not data.unlock_skill:
+		var sstacks: int = _skill_upgrade_stacks.get(data.skill_id, 0)
+		title = "%s  Lv.%d" % [data.title, sstacks + 1]
+		display_key = data.skill_id
+	elif data.type == UpgradeData.UpgradeType.SKILL:
+		display_key = data.skill_id
 	# 若已存在同名技能（仅强化叠加），更新描述，避免重复行
 	for i in _acquired.size():
-		if _acquired[i].get("key", "") == data.title and _acquired[i].get("type", "") == type_tag:
-			_acquired[i] = {"key": data.title, "title": title, "description": data.description, "type": type_tag}
+		if _acquired[i].get("key", "") == display_key and _acquired[i].get("type", "") == type_tag:
+			_acquired[i] = {"key": display_key, "title": title, "description": data.description, "type": type_tag}
 			return
-	_acquired.append({"key": data.title, "title": title, "description": data.description, "type": type_tag})
+	_acquired.append({"key": display_key, "title": title, "description": data.description, "type": type_tag})
 
 
 ## 解锁新武器（按 weapon_id 查找数据资源并交给 WeaponManager）
@@ -165,6 +243,13 @@ func _grant_weapon(weapon_id: String) -> void:
 	var data := _find_weapon_data(weapon_id)
 	if data != null:
 		_weapon_manager.add_weapon(data)
+
+
+## 解锁新技能（按 skill_id 查找 SkillData 并交给玩家 SkillSystem）
+func _grant_skill(skill_id: String) -> void:
+	var data: SkillData = _skill_map.get(skill_id)
+	if data != null:
+		_player.learn_skill(data)
 
 
 func _find_weapon_data(weapon_id: String) -> WeaponData:

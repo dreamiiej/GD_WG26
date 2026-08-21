@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://b8skarea00001"]
+
+[ext_resource type="Script" uid="uid://omvpdwpplp68" path="res://src/skill/skill_area_effect.gd" id="1_area"]
+
+[node name="SkillAreaEffect" type="Area2D"]
+script = ExtResource("1_area")
